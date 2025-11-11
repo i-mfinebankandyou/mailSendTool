@@ -26,7 +26,7 @@ const Container = styled.div`
     td:first-child {
         width: 150px;
         font-weight: 300;
-        fcolor: black;
+        color: black;
         text-align: left;
         padding-right: 20px;
         border-right: 1px solid #ccc;
@@ -77,17 +77,16 @@ function Test() {
     const [to, setTo] = useState("");
     const [subject, setSubject] = useState("");
     const [body, setBody] = useState("");
-    const [attachment, setAttachment] = useState(null);
+    const [attachments, setAttachments] = useState([]);
     const [isSending, setIsSending] = useState(false);
-    const [showForceSend, setShowForceSend] = useState(false);
 
     const handleFileChange = (e) => {
         const file = e.target.files && e.target.files[0];
         if (!file) {
-            setAttachment(null);
+            setAttachments([]);
             return;
         }
-        setAttachment(file);
+        setAttachments([...e.target.files]);
     };
 
     const handleSend = async (e) => {
@@ -110,27 +109,38 @@ function Test() {
         formData.append("to", to);
         formData.append("subject", subject);
         formData.append("body", body);
-        if (attachment) formData.append("attachment", attachment);
+        if (attachments.length > 0) {
+            attachments.forEach((file) => {
+                formData.append("attachment", file);
+            });
+        }
 
         setIsSending(true);
 
         try {
-            const response = await fetch("http://localhost:5678/webhook-test/check", {
+            const response = await fetch("http://localhost:5678/webhook/check", {
                 method: "POST",
                 body: formData,
             });
 
-            if (!response.ok) throw new Error("서버 응답 오류");
+            if (!response.ok) {
+                setIsSending(false);
+                throw new Error("서버 응답 오류");
+            }
 
             const data = await response.json();
 
-            if (data.output === "개인정보가 포함되어 있지 않습니다.") {
+            console.log(data)
+
+            setIsSending(false);
+
+            if (data[0].response.status === "success") {
                 alert("메일 전송에 성공하였습니다.");
-                handleReset();
+                // handleReset();
             } else {
                 const confirmForce = window.confirm(
-                    "메일 전송에 실패하였습니다.\n사유: " +
-                    data[0].output +
+                    "메일 전송에 실패하였습니다.\n\n사유: " +
+                    data[0].response.message +
                     "\n\n강제로 전송하시겠습니까?"
                 );
 
@@ -139,9 +149,8 @@ function Test() {
                 }
             }
         } catch (error) {
-            console.error(error);
-        } finally {
             setIsSending(false);
+            console.error(error);
         }
     };
 
@@ -150,37 +159,50 @@ function Test() {
         setTo("");
         setSubject("");
         setBody("");
-        setAttachment(null);
+        setAttachments(null);
         
         document.getElementById("fileInput").value = "";
     };
 
     const handleForceSend = async () => {
-        try {
-            const formData = new FormData();
-            formData.append("from", from);
-            formData.append("to", to);
-            formData.append("subject", subject);
-            formData.append("body", body);
-            if (attachment) formData.append("attachment", attachment);
+        const formData = new FormData();
+        formData.append("from", from);
+        formData.append("to", to);
+        formData.append("subject", subject);
+        formData.append("body", body);
+        if (attachments.length > 0) {
+            attachments.forEach((file) => {
+                formData.append("attachment", file);
+            });
+        }
 
-            const response = await fetch("/api/force-send-email", {
+        setIsSending(true);
+
+        try {
+            const response = await fetch("http://localhost:5678/webhook/cc", {
                 method: "POST",
                 body: formData,
             });
 
-            if (response.ok) {
+            if (!response.ok) {
+                setIsSending(false);
+                throw new Error("서버 응답 오류");
+            }
+
+            const data = await response.json();
+
+            setIsSending(false);
+
+            if (data[0].response.status === "success") {
                 alert("강제 전송이 완료되었습니다.");
-                handleReset();
+                // handleReset();
             } else {
                 alert("강제 전송 중 오류가 발생했습니다.");
             }
         } catch (error) {
+            setIsSending(false);
             console.error(error);
-        } 
-        // finally {
-        //     setIsSending(false);
-        // }
+        }
     };
 
     return (
@@ -236,7 +258,7 @@ function Test() {
                         <tr>
                             <td>파일 첨부</td>
                             <td>
-                                <input type="file" id="fileInput" onChange={handleFileChange} />
+                                <input type="file" id="fileInput" multiple onChange={handleFileChange} />
                             </td>
                         </tr>
                     </tbody>
