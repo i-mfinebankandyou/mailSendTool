@@ -128,8 +128,15 @@ function Test() {
                 alert("메일 전송에 성공하였습니다.");
                 handleReset();
             } else {
-                alert("메일 전송에 실패하였습니다.\n사유: " + data[0].output);
-                setShowForceSend(true); // ✅ 강제 전송 버튼 활성화
+                const confirmForce = window.confirm(
+                    "메일 전송에 실패하였습니다.\n사유: " +
+                    data[0].output +
+                    "\n\n강제로 전송하시겠습니까?"
+                );
+
+                if (confirmForce) {
+                    await handleForceSend(); // ✅ 강제 전송 실행
+                }
             }
         } catch (error) {
             console.error(error);
@@ -148,37 +155,33 @@ function Test() {
         document.getElementById("fileInput").value = "";
     };
 
-    // const handleForceSend = async () => {
-    //     if (!window.confirm("개인정보가 포함되어 있습니다. 그래도 강제 전송하시겠습니까?"))
-    //     return;
+    const handleForceSend = async () => {
+        try {
+            const formData = new FormData();
+            formData.append("from", from);
+            formData.append("to", to);
+            formData.append("subject", subject);
+            formData.append("body", body);
+            if (attachment) formData.append("attachment", attachment);
 
-    //     setIsSending(true);
-    //     try {
-    //     const formData = new FormData();
-    //     formData.append("sender", form.sender);
-    //     formData.append("receiver", form.receiver);
-    //     formData.append("subject", form.subject);
-    //     formData.append("content", form.content);
-    //     if (form.file) formData.append("file", form.file);
+            const response = await fetch("/api/force-send-email", {
+                method: "POST",
+                body: formData,
+            });
 
-    //     // ✅ 다른 API로 강제 전송
-    //     const response = await fetch("/api/force-send-email", {
-    //         method: "POST",
-    //         body: formData,
-    //     });
-
-    //     if (response.ok) {
-    //         alert("강제 전송이 완료되었습니다.");
-    //         handleReset();
-    //     } else {
-    //         alert("강제 전송 중 오류가 발생했습니다.");
-    //     }
-    //     } catch (error) {
-    //     alert("강제 전송 중 네트워크 오류가 발생했습니다.");
-    //     } finally {
-    //     setIsSending(false);
-    //     }
-    // };
+            if (response.ok) {
+                alert("강제 전송이 완료되었습니다.");
+                handleReset();
+            } else {
+                alert("강제 전송 중 오류가 발생했습니다.");
+            }
+        } catch (error) {
+            console.error(error);
+        } 
+        // finally {
+        //     setIsSending(false);
+        // }
+    };
 
     return (
         <Container>
