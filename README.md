@@ -1,3 +1,6 @@
+npm start 하면 실행 (localhost:8000)
+처음 실행할 땐 npm install 먼저 해야함
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
