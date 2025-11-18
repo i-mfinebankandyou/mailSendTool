@@ -475,8 +475,6 @@ function Test() {
             {mode === "board" && (
                 <>
                     <h1>사내 게시판</h1>
-
-                    {/* 글쓰기 폼 모드 */}
                     {isWriting ? (
                         <>
                             <form
@@ -542,7 +540,6 @@ function Test() {
                         </>
                     ) : (
                         <>
-                            {/* 게시글 목록 */}
                             <table className="board">
                                 <thead>
                                     <tr>
@@ -553,13 +550,7 @@ function Test() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {boardPosts.length === 0 ? (
-                                        <tr>
-                                            <td colSpan={4} style={{ textAlign: "center", padding: "20px" }}>
-                                                등록된 게시글이 없습니다.
-                                            </td>
-                                        </tr>
-                                    ) : (
+                                    {(
                                         boardPosts.map((post) => (
                                             <tr key={post.id}>
                                                 <td>{post.id}</td>
