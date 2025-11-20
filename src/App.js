@@ -2,6 +2,7 @@ import "./App.css";
 import Test from "./pages/Test";
 import { Route, Routes, Navigate } from "react-router-dom";
 import BoardDetail from "./pages/BoardDetail";
+import Board from "./pages/Board";
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
         <Route path="/" element={<Navigate to="/test" />} />
         <Route path="/test" element={<Test />} />
         <Route path="/board/:id" element={<BoardDetail />} />
+        <Route path="/board" element={<Board />} />
       </Routes>
     </div>
   );

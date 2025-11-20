@@ -64,7 +64,7 @@ function BoardDetail() {
       </div>
 
       <div className="bottom-area">
-        <button className="back-button" onClick={() => navigate(-1)}>
+        <button className="back-button" onClick={() => navigate("/board")}>
           목록으로
         </button>
       </div>
