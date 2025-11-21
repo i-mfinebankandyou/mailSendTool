@@ -56,7 +56,7 @@ function Test() {
     setIsSending(true);
 
     try {
-      const response = await fetch("http://localhost:5678/webhook/check", {
+      const response = await fetch("http://localhost:5678/webhook-test/check", {
         method: "POST",
         body: formData,
       });
@@ -123,7 +123,7 @@ function Test() {
     setIsSending(true);
 
     try {
-      const response = await fetch("http://localhost:5678/webhook/cc", {
+      const response = await fetch("http://localhost:5678/webhook-test/cc", {
         method: "POST",
         body: formData,
       });
