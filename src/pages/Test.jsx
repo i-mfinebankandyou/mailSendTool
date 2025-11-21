@@ -56,27 +56,33 @@ function Test() {
     setIsSending(true);
 
     try {
-      const response = await fetch("http://localhost:5678/webhook-test/check", {
+      const response = await fetch("http://localhost:5678/webhook/check", {
         method: "POST",
         body: formData,
       });
+
+      console.log(1);
 
       if (!response.ok) {
         setIsSending(false);
         throw new Error("서버 응답 오류");
       }
 
+      console.log(2);
+
       const data = await response.json();
 
       setIsSending(false);
 
-      if (data[0].response.status === "success") {
+      console.log(3);
+
+      if (data.response.status === "success") {
         alert("메일 전송에 성공하였습니다.");
         // handleReset();
       } else {
         const confirmForce = window.confirm(
           "메일 전송에 실패하였습니다.\n\n사유: " +
-            data[0].response.message +
+            data.response.message +
             "\n\n강제로 전송하시겠습니까?"
         );
 
@@ -84,6 +90,7 @@ function Test() {
           await handleForceSend();
         }
       }
+      console.log(4);
     } catch (error) {
       setIsSending(false);
       console.error(error);
@@ -116,7 +123,7 @@ function Test() {
     setIsSending(true);
 
     try {
-      const response = await fetch("http://localhost:5678/webhook-test/cc", {
+      const response = await fetch("http://localhost:5678/webhook/cc", {
         method: "POST",
         body: formData,
       });
@@ -130,7 +137,7 @@ function Test() {
 
       setIsSending(false);
 
-      if (data[0].response.status === "success") {
+      if (data.response.status === "success") {
         alert("강제 전송이 완료되었습니다.");
         // handleReset();
       } else {
